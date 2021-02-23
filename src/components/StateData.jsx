@@ -7,14 +7,14 @@ import { Typography } from '@material-ui/core';
 import NumberFormat from 'react-number-format';
 
 // import component
-
+import DataChart from './DataChart'
 
 const useStylesPapers = makeStyles((theme) => ({
     root: {
       display: 'flex',
       flexWrap: 'wrap',
       '& > *': {
-        width: "45%",
+        width: "30%",
         height: theme.spacing(16),
         marginLeft: "auto",
         marginRight: "auto",
@@ -57,15 +57,20 @@ const StateData = () => {
     const paperClasses = useStylesPapers();
     const [countryName, setCountryName] = useState();
     const [stateData, setStateData] = useState();
-    
+    const [dataset, setDataset] = useState([])
 
     useEffect(() => {
+        let data = []
         async function fatchData(){
             setStateData()
             const apiResponse = await fetch(`https://api.covid19api.com/total/country/${countryName}`);
-            const dataFromApi = await apiResponse.json()
+            const dataFromApi = await apiResponse.json()   
+            for (const [key, value] of Object.entries(dataFromApi)) {
+                data.push({label: value.Date, value: value.Confirmed !== undefined ? value.Confirmed.toString() : undefined})
+            }
+            setDataset(data)
             setStateData(dataFromApi[dataFromApi.length - 1])
-            // console.log(dataFromApi[dataFromApi.length - 1])
+            // // console.log(dataFromApi[dataFromApi.length - 1])
           }
           fatchData()
 
@@ -106,18 +111,7 @@ const StateData = () => {
 
             <div className={paperClasses.root}>
                 <Paper elevation={3}>
-                    <div className={paperClasses.typo}>
-                        <Typography variant="h4" gutterBottom>
-                            <NumberFormat value={stateData && stateData.Confirmed} displayType={'text'} thousandSeparator={true}/>
-                        </Typography>
-                        <Typography className={paperClasses.titleSize} variant="subtitle2" gutterBottom>
-                            Confirmed Cases
-                        </Typography>
-                    </div>
-                </Paper>
-
-                <Paper elevation={3}>
-                    <div className={paperClasses.typo} style={{color: "red"}}>
+                    <div className={paperClasses.typo} style={{color: "Red"}}>
                         <Typography variant="h4" gutterBottom>
                             <NumberFormat value={stateData && stateData.Active} displayType={'text'} thousandSeparator={true}/>
                         </Typography>
@@ -126,6 +120,7 @@ const StateData = () => {
                         </Typography>
                     </div>
                 </Paper>
+
 
                 <Paper elevation={3}>
                     <div className={paperClasses.typo} style={{color: "green"}}>
@@ -150,6 +145,10 @@ const StateData = () => {
                 </Paper>
             </div>
           
+            {
+                countryName && <DataChart country={countryName} data={dataset}/>
+            }
+            
             
         </div>
     )

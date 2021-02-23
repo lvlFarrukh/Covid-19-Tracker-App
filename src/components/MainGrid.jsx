@@ -6,7 +6,7 @@ import { Typography } from '@material-ui/core';
 
 // import component
 import GlobalData from './GlobalData';
-import StateData from './StateData'
+import StateData from './StateData';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -30,9 +30,15 @@ export default function CenteredGrid() {
 
   useEffect( ()=> {
     async function fatchData(){
-      const apiResponse = await fetch("https://api.covid19api.com/world/total");
+      const apiResponse = await fetch("https://covid-api.mmediagroup.fr/v1/cases");
       const dataFromApi = await apiResponse.json()
-      setGlobalData(dataFromApi)
+      for (const [key, value] of Object.entries(dataFromApi)) {
+        var cC = 0, rC = 0, dC = 0;
+        cC = cC + value.All.confirmed;
+        rC = rC + value.All.recovered;
+        dC = dC + value.All.deaths;
+      }      
+      setGlobalData({TotalConfirmed: cC, TotalDeaths: dC, TotalRecovered: rC})
       // console.log(dataFromApi)
     }
     fatchData()
@@ -62,6 +68,7 @@ export default function CenteredGrid() {
           </Paper>
         </Grid>
       </Grid>
+      
     </div>
   );
 }
